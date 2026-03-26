@@ -1,0 +1,6 @@
+{
+  "http://localhost:8888/": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1774489608102-77405.report.html",
+  "http://localhost:8888/products/": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1774489609106-8009.report.html",
+  "http://localhost:8888/cart/": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1774489610103-77877.report.html",
+  "http://localhost:8888/accounts/login/": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1774489610956-53639.report.html"
+}
