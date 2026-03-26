@@ -1,4 +1,4 @@
-"""Pytest fixtures and factories."""
+"""Pytest fixtures — relies on pytest-django's built-in db fixture."""
 
 import pytest
 from decimal import Decimal
@@ -8,17 +8,6 @@ from apps.cart.models import Cart, CartItem
 from apps.orders.models import Order, OrderItem
 
 User = get_user_model()
-
-
-@pytest.fixture(scope="session")
-def django_db_setup():
-    """Use SQLite for tests."""
-    from django.conf import settings
-    settings.DATABASES["default"] = {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
-        "ATOMIC_REQUESTS": False,
-    }
 
 
 @pytest.fixture
