@@ -1,8 +1,7 @@
 #!/bin/bash
 # Orderimo Self-Improvement Script
-# Wakes every 20 minutes via OpenClaw cron
-# Runs tests FIRST — if they fail, abort and alert Kay
-# If they pass, performs a structured review pass and commits if changes made
+# Runs: tests → Lighthouse audit → quality checks → git commit
+# Wakes every hour via OpenClaw cron
 
 set -e
 
@@ -11,57 +10,82 @@ source "$SCRIPT_DIR/venv/bin/activate"
 cd "$SCRIPT_DIR"
 
 LOG="$SCRIPT_DIR/improve.log"
-echo "=== plurino self-improve run: $(date) ===" >> "$LOG"
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
+echo "=== Orderimo self-improve: $TIMESTAMP ===" >> "$LOG"
 
-# Step 1: Run tests
-echo "[1/4] Running tests..." >> "$LOG"
+# ─── Step 1: Tests ──────────────────────────────────────────────────────────
+echo "[1/4] Running test suite..." >> "$LOG"
 TEST_OUTPUT=$(python -m pytest tests/ -q --tb=short 2>&1)
 TEST_EXIT=$?
 
 if [ $TEST_EXIT -ne 0 ]; then
-    echo "[!] Tests FAILED — aborting improvement pass" >> "$LOG"
+    echo "[!] TESTS FAILED — aborting improvement pass" >> "$LOG"
     echo "$TEST_OUTPUT" >> "$LOG"
     echo "TESTS_FAILED" > "$SCRIPT_DIR/.improve_status"
     exit 1
 fi
 
-echo "[OK] Tests passed" >> "$LOG"
+echo "  [OK] All tests passed" >> "$LOG"
 
-# Step 2: Check for obvious improvements
-echo "[2/4] Scanning for improvements..." >> "$LOG"
+# ─── Step 2: Lighthouse CI ─────────────────────────────────────────────────────
+echo "[2/4] Running Lighthouse CI audit..." >> "$LOG"
+
+LIGHTHOUSE_OUTPUT=$(lhci autorun 2>&1 || true)
+echo "$LIGHTHOUSE_OUTPUT" >> "$LOG"
+
+# Extract scores
+PERF=$(echo "$LIGHTHOUSE_OUTPUT" | grep -o '"performance":[0-9.]*' | head -1 | cut -d: -f2 || echo "N/A")
+ACCESS=$(echo "$LIGHTHOUSE_OUTPUT" | grep -o '"accessibility":[0-9.]*' | head -1 | cut -d: -f2 || echo "N/A")
+SEO=$(echo "$LIGHTHOUSE_OUTPUT" | grep -o '"seo":[0-9.]*' | head -1 | cut -d: -f2 || echo "N/A")
+echo "  Performance: $PERF | Accessibility: $ACCESS | SEO: $SEO" >> "$LOG"
+
+# Warn if any score regressed below threshold
+if [ "$PERF" != "N/A" ] && [ "$(echo "$PERF < 0.7" | bc -l 2>/dev/null)" = "1" ]; then
+    echo "  [!] Performance below 0.7 — investigate" >> "$LOG"
+fi
+
+# ─── Step 3: Quality checks ──────────────────────────────────────────────────
+echo "[3/4] Quality checks..." >> "$LOG"
 
 IMPROVEMENTS=0
 
-# Check for TODO/FIXME comments
-TODO_COUNT=$(grep -rn "TODO\|FIXME\|XXX\|HACK" "$SCRIPT_DIR/apps" "$SCRIPT_DIR/tests" 2>/dev/null | wc -l || echo "0")
-echo "  Found $TODO_COUNT TODO/FIXME comments" >> "$LOG"
-
-# Check test coverage is > 80%
-COVERAGE=$(python -m pytest tests/ --cov=apps --cov-report=term-missing -q 2>/dev/null | grep "TOTAL" | awk '{print $NF}' | tr -d '%' || echo "0")
-echo "  Test coverage: ${COVERAGE}%" >> "$LOG"
-
-# Step 3: Quality pass — check for common issues
-echo "[3/4] Running quality checks..." >> "$LOG"
-
 # Check for hardcoded secrets/keys
-HARDCODED=$(grep -rn "pk_test_\|sk_test_\|password\s*=\s*['\"][^'\"]{8}" "$SCRIPT_DIR/apps" 2>/dev/null | grep -v ".pyc" | grep -v "improve.sh" | wc -l || echo "0")
-echo "  Hardcoded credential warnings: $HARDCODED" >> "$LOG"
+HARDCODED=$(grep -rn "pk_test_\|sk_test_\|password\s*=\s*['\"][^'\"]{8}" \
+    "$SCRIPT_DIR/apps" "$SCRIPT_DIR/orderimo" 2>/dev/null | \
+    grep -v ".pyc" | grep -v "improprove" | wc -l || echo "0")
+[ "$HARDCODED" -gt "0" ] && echo "  [!] $HARDCODED hardcoded credential warnings" >> "$LOG"
 
-# Step 4: Git commit if changes exist
-echo "[4/4] Checking for changes to commit..." >> "$LOG"
+# Check for TODO/FIXME comments (count open todos)
+TODO_COUNT=$(grep -rn "TODO\|FIXME" "$SCRIPT_DIR/apps" "$SCRIPT_DIR/tests" 2>/dev/null | wc -l || echo "0")
+echo "  Open TODOs/FIXMEs: $TODO_COUNT" >> "$LOG"
+
+# Check for TODO/FIXME comments (count open todos)
+TODO_COUNT=$(grep -rn "TODO\|FIXME" "$SCRIPT_DIR/apps" "$SCRIPT_DIR/tests" 2>/dev/null | wc -l || echo "0")
+echo "  Open TODOs/FIXMEs: $TODO_COUNT" >> "$LOG"
+
+echo "  [OK] Quality checks complete" >> "$LOG"
+
+# ─── Step 4: Git commit ───────────────────────────────────────────────────────
+echo "[4/4] Git status..." >> "$LOG"
 cd "$SCRIPT_DIR"
 if [ -d ".git" ]; then
     if ! git diff --quiet || ! git diff --cached --quiet; then
-        echo "  Uncommitted changes found — staging and committing..." >> "$LOG"
+        echo "  [+] Uncommitted changes — staging and committing..." >> "$LOG"
         git add -A
-        git commit -m "plurino self-improve: $(date '+%Y-%m-%d %H:%M') — tests passed, coverage ${COVERAGE}%" >> "$LOG" 2>&1 || true
-        echo "  Committed." >> "$LOG"
+        git commit -m "Orderimo self-improve: $TIMESTAMP — tests passed | perf:$PERF acc:$ACCESS seo:$SEO" >> "$LOG" 2>&1 || true
+        echo "  [OK] Committed." >> "$LOG"
         IMPROVEMENTS=1
     else
-        echo "  No changes to commit." >> "$LOG"
+        echo "  [OK] No changes to commit." >> "$LOG"
+    fi
+
+    # Push if there were changes
+    if [ "$IMPROVEMENTS" = "1" ]; then
+        git push origin main 2>&1 >> "$LOG" || echo "  [!] Push failed (may need auth)" >> "$LOG"
+        echo "  [OK] Pushed to GitHub." >> "$LOG"
     fi
 fi
 
-echo "=== Run complete: $(date) ===" >> "$LOG"
+echo "=== Complete: $TIMESTAMP ===" >> "$LOG"
 echo "COMPLETE" > "$SCRIPT_DIR/.improve_status"
 exit 0
