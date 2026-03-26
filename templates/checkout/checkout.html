@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="h3 mb-4">Checkout</h1>
+
+    {% if cart and cart.item_count > 0 %}
+    <div class="row g-5">
+        <!-- Delivery Details -->
+        <div class="col-lg-7">
+            <form method="post" action=".">
+                {% csrf_token %}
+                <h4 class="mb-3">Delivery Details</h4>
+
+                <div class="mb-3">
+                    <label for="id_full_name" class="form-label">Full Name *</label>
+                    <input type="text" name="full_name" id="id_full_name" class="form-control" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_email" class="form-label">Email *</label>
+                        <input type="email" name="email" id="id_email" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_phone" class="form-label">Phone</label>
+                        <input type="tel" name="phone" id="id_phone" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_address_line1" class="form-label">Address Line 1 *</label>
+                    <input type="text" name="address_line1" id="id_address_line1" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_address_line2" class="form-label">Address Line 2</label>
+                    <input type="text" name="address_line2" id="id_address_line2" class="form-control">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="id_city" class="form-label">City *</label>
+                        <input type="text" name="city" id="id_city" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_county" class="form-label">County</label>
+                        <input type="text" name="county" id="id_county" class="form-control">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_postcode" class="form-label">Eircode / Postcode</label>
+                        <input type="text" name="postcode" id="id_postcode" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_country" class="form-label">Country *</label>
+                    <input type="text" name="country" id="id_country" class="form-control" maxlength="2" placeholder="IE" required>
+                    <div class="form-text">2-letter country code (e.g. IE, GB, FR)</div>
+                </div>
+
+                <button type="submit" class="btn btn-plurino btn-lg w-100 mt-3">
+                    Continue to Payment
+                </button>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-5">
+            <div class="card p-4">
+                <h4 class="mb-3">Order Summary</h4>
+                {% for item in cart.items.all %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">{{ item.product.name }} x{{ item.quantity }}{% if item.size %} ({{ item.size }}){% endif %}</span>
+                    <span>€{{ item.subtotal|floatformat:2 }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span><span>€{{ cart.subtotal|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Delivery</span>
+                    <span>{% if cart.delivery_cost == 0 %}<span class="text-success">Free</span>{% else %}€{{ cart.delivery_cost|floatformat:2 }}{% endif %}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total</strong>
+                    <strong class="text-accent fs-5">€{{ cart.grand_total|floatformat:2 }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>Your cart is empty. <a href="{% url 'products:product_list' %}">Go shopping</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

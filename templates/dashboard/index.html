@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Dashboard</h1>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <p class="text-muted small mb-1">Revenue (all time)</p>
+                <p class="h3 mb-0 text-accent">€{{ total_revenue|floatformat:2 }}</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <p class="text-muted small mb-1">Orders (30d)</p>
+                <p class="h3 mb-0">{{ orders_30d }}</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <p class="text-muted small mb-1">Products</p>
+                <p class="h3 mb-0">{{ products_count }}</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <p class="text-muted small mb-1">Users</p>
+                <p class="h3 mb-0">{{ users_count }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <h3 class="mb-3">Recent Orders</h3>
+    <div class="card">
+        <table class="table table-dark table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.full_name }}<br><span class="small text-muted">{{ order.email }}</span></td>
+                    <td><span class="badge bg-secondary">{{ order.get_status_display }}</span></td>
+                    <td>€{{ order.grand_total }}</td>
+                    <td>{{ order.created_at|date:"d M Y" }}</td>
+                    <td><a href="{% url 'orders:order_detail' order.order_number %}" class="btn btn-sm btn-outline-light">View</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-4">No orders yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 d-flex gap-3">
+        <a href="{% url 'admin:index' %}" class="btn btn-outline-light">Django Admin</a>
+        <a href="{% url 'products:product_create' %}" class="btn btn-plurino">Add Product</a>
+    </div>
+</div>
+{% endblock %}

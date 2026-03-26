@@ -1,0 +1,31 @@
+{% extends "account/base.html" %}
+
+{% block account_content %}
+<h2 class="mb-4 text-center">Create Account</h2>
+<form method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="id_username" class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" id="id_username" placeholder="username" required minlength="4">
+    </div>
+    <div class="mb-3">
+        <label for="id_email" class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" id="id_email" placeholder="you@example.com" required>
+    </div>
+    <div class="mb-3">
+        <label for="id_password1" class="form-label">Password</label>
+        <input type="password" name="password1" class="form-control" id="id_password1" required>
+    </div>
+    <div class="mb-3">
+        <label for="id_password2" class="form-label">Confirm Password</label>
+        <input type="password" name="password2" class="form-control" id="id_password2" required>
+    </div>
+    {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    <button type="submit" class="btn btn-plurino w-100">Create Account</button>
+</form>
+<p class="text-center mt-3 text-muted small">
+    Already have an account? <a href="{% url 'account_login' %}">Login</a>
+</p>
+{% endblock %}

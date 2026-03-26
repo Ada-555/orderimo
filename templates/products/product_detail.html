@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Images -->
+        <div class="col-md-6">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height:500px;width:100%;object-fit:cover;">
+            {% else %}
+                <div class="bg-secondary bg-opacity-10 rounded d-flex align-items-center justify-content-center" style="height:400px;">
+                    <i class="bi bi-box fs-1 text-muted"></i>
+                </div>
+            {% endif %}
+            {% if product.images.all %}
+            <div class="row g-2 mt-2">
+                {% for img in product.images.all %}
+                <div class="col-3">
+                    <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" class="img-thumbnail" style="height:80px;object-fit:cover;">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Details -->
+        <div class="col-md-6">
+            <p class="text-muted small mb-1">{{ product.category|default:"Uncategorized" }}</p>
+            <h1 class="h2 mb-2">{{ product.name }}</h1>
+            <p class="text-muted small">SKU: {{ product.sku }}</p>
+
+            <div class="mb-3">
+                {% if product.sale_price %}
+                    <span class="price-original h4 me-3">€{{ product.price }}</span>
+                    <span class="price-sale h3">€{{ product.sale_price }}</span>
+                {% else %}
+                    <span class="h3 text-white">€{{ product.price }}</span>
+                {% endif %}
+            </div>
+
+            <p class="mb-4">{{ product.description|linebreaks }}</p>
+
+            {% if product.stock > 0 %}
+                <p class="small text-success mb-3"><i class="bi bi-check-circle-fill"></i> In stock ({{ product.stock }} available)</p>
+            {% else %}
+                <p class="small text-danger mb-3"><i class="bi bi-x-circle-fill"></i> Out of stock</p>
+            {% endif %}
+
+            <form action="{% url 'cart:add_to_cart' product.id %}" method="post" id="add-to-cart-form">
+                {% csrf_token %}
+                {% if product.has_sizes %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Size</label>
+                    <select name="size" class="form-select" style="max-width:200px;">
+                        <option value="">Select size</option>
+                        <option>XS</option><option>S</option><option>M</option>
+                        <option>L</option><option>XL</option><option>XXL</option>
+                    </select>
+                </div>
+                {% endif %}
+                <div class="mb-3" style="max-width:150px;">
+                    <label class="form-label fw-semibold">Qty</label>
+                    <input type="number" name="quantity" value="1" min="1" max="99" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-plurino btn-lg w-100 mb-3">
+                    <i class="bi bi-bag-plus me-2"></i> Add to Cart
+                </button>
+            </form>
+
+            {% if user.is_superuser %}
+            <div class="d-flex gap-2 mt-3">
+                <a href="{% url 'products:product_edit' product.slug %}" class="btn btn-outline-light btn-sm">Edit</a>
+                <a href="{% url 'products:product_delete' product.slug %}" class="btn btn-outline-danger btn-sm">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related %}
+    <section class="mt-5">
+        <h2 class="h4 mb-4">You might also like</h2>
+        <div class="row g-3">
+            {% for p in related %}
+            <div class="col-6 col-md-3">
+                <div class="card">
+                    {% if p.image %}<img src="{{ p.image.url }}" class="card-img-top" style="height:160px;object-fit:cover;">{% endif %}
+                    <div class="card-body p-2">
+                        <p class="small mb-1 fw-semibold" style="line-height:1.2;">{{ p.name }}</p>
+                        <span class="fw-bold text-white small">€{{ p.price }}</span>
+                        <a href="{% url 'products:product_detail' p.slug %}" class="btn btn-sm btn-outline-light w-100 mt-2">View</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

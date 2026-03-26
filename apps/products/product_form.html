@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{{ action }} Product</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-plurino">Save</button>
+        <a href="{% url 'products:product_list' %}" class="btn btn-outline-light">Cancel</a>
+    </form>
+</div>
+{% endblock %}

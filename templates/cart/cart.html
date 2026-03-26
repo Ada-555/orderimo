@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="h3 mb-4">Your Cart</h1>
+
+    {% if cart and cart.item_count > 0 %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            {% for item in cart.items.all %}
+            <div class="card mb-3 p-3" data-item-id="{{ item.id }}">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                        {% else %}
+                            <div class="bg-secondary bg-opacity-10 rounded d-flex align-items-center justify-content-center" style="height:70px;"><i class="bi bi-box text-muted"></i></div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <p class="fw-semibold mb-0">{{ item.product.name }}</p>
+                        {% if item.size %}<p class="small text-muted mb-0">Size: {{ item.size }}</p>{% endif %}
+                        <p class="small text-muted mb-0">SKU: {{ item.product.sku }}</p>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <p class="mb-2 fw-semibold">€{{ item.product.current_price }}</p>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <input type="number" min="1" max="99" value="{{ item.quantity }}" class="form-control form-control-sm quantity-input" style="width:70px;margin:0 auto;" data-item-id="{{ item.id }}">
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <p class="fw-bold mb-2">€{{ item.subtotal|floatformat:2 }}</p>
+                        <button class="btn btn-sm btn-outline-danger remove-item" data-item-id="{{ item.id }}"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card p-4">
+                <h4 class="mb-4">Summary</h4>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span><span id="cart-subtotal">€{{ cart.subtotal|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Delivery</span><span id="cart-delivery">{% if cart.delivery_cost == 0 %}<span class="text-success">Free</span>{% else %}€{{ cart.delivery_cost|floatformat:2 }}{% endif %}</span>
+                </div>
+                {% if cart.delivery_cost > 0 %}
+                <p class="small text-muted mb-2">Free delivery over €{{ free_delivery_threshold|default:"80" }}</p>
+                {% endif %}
+                <hr>
+                <div class="d-flex justify-content-between mb-4">
+                    <strong>Total</strong><strong id="cart-grand-total" class="text-accent">€{{ cart.grand_total|floatformat:2 }}</strong>
+                </div>
+                <a href="{% url 'checkout:checkout' %}" class="btn btn-plurino w-100 btn-lg">Checkout</a>
+                <a href="{% url 'products:product_list' %}" class="btn btn-outline-light w-100 mt-2">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-bag fs-1 text-muted"></i>
+        <p class="text-muted mt-3">Your cart is empty.</p>
+        <a href="{% url 'products:product_list' %}" class="btn btn-plurino">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('change', async () => {
+        const res = await fetch(`/cart/update/${input.dataset.itemId}/`, {
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': '{{ csrf_token }}'},
+            body: new URLSearchParams({quantity: input.value})
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('cart-subtotal').textContent = '€' + parseFloat(data.subtotal).toFixed(2);
+            document.getElementById('cart-grand-total').textContent = '€' + parseFloat(data.grand_total).toFixed(2);
+            document.getElementById('cart-delivery').textContent = data.delivery == 0 ? 'Free' : '€' + parseFloat(data.delivery).toFixed(2);
+        }
+    });
+});
+
+document.querySelectorAll('.remove-item').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const res = await fetch(`/cart/remove/${btn.dataset.itemId}/`, {
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': '{{ csrf_token }}'}
+        });
+        const data = await res.json();
+        if (data.success) {
+            btn.closest('.card').remove();
+            document.getElementById('cart-subtotal').textContent = '€' + parseFloat(data.subtotal).toFixed(2);
+            document.getElementById('cart-grand-total').textContent = '€' + parseFloat(data.grand_total).toFixed(2);
+            document.getElementById('cart-delivery').textContent = data.delivery == 0 ? 'Free' : '€' + parseFloat(data.delivery).toFixed(2);
+        }
+    });
+});
+</script>
+{% endblock %}

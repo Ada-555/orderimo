@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Plurino — Next-generation e-commerce{% endblock %}">
+    <title>{% block title %}Plurino{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --plurino-primary: #6c2bd9;
+            --plurino-accent: #f72585;
+            --plurino-dark: #0d0d0d;
+            --plurino-surface: #1a1a2e;
+        }
+        body {
+            background: var(--plurino-dark);
+            color: #e0e0e0;
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        a { color: var(--plurino-accent); text-decoration: none; }
+        a:hover { color: #d63384; }
+        .btn-plurino { background: var(--plurino-primary); color: #fff; border: none; }
+        .btn-plurino:hover { background: #5a1fbe; color: #fff; }
+        .card { background: var(--plurino-surface); border: 1px solid #2a2a3e; }
+        .navbar { background: rgba(13,13,13,0.95) !important; backdrop-filter: blur(10px); }
+        .navbar-brand { font-weight: 700; color: var(--plurino-accent) !important; }
+        .nav-link { color: #e0e0e0 !important; }
+        .nav-link:hover { color: var(--plurino-accent) !important; }
+        footer { margin-top: auto; background: var(--plurino-surface); }
+        .badge-accent { background: var(--plurino-accent); }
+        .text-accent { color: var(--plurino-accent) !important; }
+        .border-accent { border-color: var(--plurino-accent) !important; }
+        .dropdown-menu { background: var(--plurino-surface); border: 1px solid #2a2a3e; }
+        .dropdown-item { color: #e0e0e0; }
+        .dropdown-item:hover { background: var(--plurino-primary); color: #fff; }
+        .form-control, .form-select { background: #2a2a3e; border: 1px solid #3a3a4e; color: #f0f0f0; }
+        .form-control:focus, .form-select:focus { background: #2a2a3e; border-color: var(--plurpy); color: #f0f0f0; }
+        .form-control::placeholder { color: #888; }
+        label { color: #c0c0c0; font-weight: 500; }
+        .help-text { color: #aaa; font-size: 0.85em; }
+        /* Crispy form overrides */
+        .form-check-label { color: #c0c0c0; }
+        .form-text { color: #aaa; }
+        .alert { border: none; }
+        .price-sale { color: #4ade80; font-weight: 700; }
+        .price-original { color: #888; text-decoration: line-through; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">✦ PLURINO</a>
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'products:product_list' %}">Shop</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'orders:order_history' %}">Orders</a></li>
+                        {% if user.is_superuser %}
+                            <li class="nav-item"><a class="nav-link text-accent" href="{% url 'dashboard:index' %}">Dashboard</a></li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">{{ user.username }}</a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'accounts:address_list' %}">Addresses</a></li>
+                                <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">Login</a></li>
+                        <li class="nav-item"><a class="btn btn-plurino btn-sm ms-2" href="{% url 'account_signup' %}">Sign Up</a></li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'cart:view_cart' %}">
+                            <i class="bi bi-bag fs-5"></i>
+                            {% if cart_item_count > 0 %}
+                                <span class="position-absolute badge badge-accent rounded-circle" style="top:-6px;right:-8px;font-size:10px;">{{ cart_item_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} d-flex align-items-center gap-2" role="alert">
+                    <i class="bi bi-{% if message.tags == 'success' %}check-circle-fill{% elif message.tags == 'error' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-1 text-muted">&copy; {% now "Y" %} Plurino. All rights reserved.</p>
+            <p class="small text-muted">Built with Django &middot; Payments by Stripe</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
