@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>orderimo — Turn anything into a sellable page</title>
-  <meta name="description" content="One link. Instant checkout. Launch in 60 seconds. The fastest way to sell anything online.">
+  <meta name="description" content="Turn anything into a sellable page. One link. Instant checkout. The fastest way to sell anything online.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,17 +17,19 @@
 
     :root {
       --bg: #060606;
-      --blue: #0066ff;
-      --pink: #ff0066;
+      --blue: #1a579a;
+      --blue-bright: #1C69D4;
+      --pink: #ff99cc;
+      --pink-neon: #ff66b2;
       --white: #ffffff;
       --muted: rgba(255,255,255,0.55);
       --muted-strong: rgba(255,255,255,0.75);
       --glass: rgba(255,255,255,0.04);
       --glass-border: rgba(255,255,255,0.08);
-      --glow-blue: 0 0 30px rgba(0,102,255,0.4);
-      --glow-pink: 0 0 30px rgba(255,0,102,0.4);
-      --glow-blue-strong: 0 0 60px rgba(0,102,255,0.6), 0 0 120px rgba(0,102,255,0.3);
-      --glow-pink-strong: 0 0 60px rgba(255,0,102,0.6), 0 0 120px rgba(255,0,102,0.3);
+      --glow-blue: 0 0 30px rgba(26,87,154,0.5);
+      --glow-pink: 0 0 30px rgba(255,153,204,0.4);
+      --glow-blue-strong: 0 0 60px rgba(26,87,154,0.7), 0 0 120px rgba(26,87,154,0.35);
+      --glow-pink-strong: 0 0 60px rgba(255,153,204,0.6), 0 0 120px rgba(255,153,204,0.3);
     }
 
     html {
@@ -47,8 +49,8 @@
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background-image: 
-        linear-gradient(rgba(0,102,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,102,255,0.03) 1px, transparent 1px);
+        linear-gradient(rgba(26,87,154,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,87,154,0.03) 1px, transparent 1px);
       background-size: 60px 60px;
       pointer-events: none;
       z-index: 0;
@@ -98,7 +100,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      text-shadow: 0 0 40px rgba(0,102,255,0.5);
+      text-shadow: 0 0 40px rgba(26,87,154,0.5);
     }
 
     .logo span {
@@ -326,7 +328,7 @@
 
     .form-input:focus {
       border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(0,102,255,0.15), var(--glow-blue);
+      box-shadow: 0 0 0 3px rgba(26,87,154,0.15), var(--glow-blue);
     }
 
     .price-wrapper {
@@ -362,7 +364,7 @@
     .upload-zone:hover,
     .upload-zone.drag-over {
       border-color: var(--blue);
-      background: rgba(0,102,255,0.05);
+      background: rgba(26,87,154,0.05);
     }
 
     .upload-zone input {
@@ -445,7 +447,7 @@
     }
 
     .uploaded-image-wrap .remove-img:hover {
-      background: rgba(255,0,102,0.5);
+      background: rgba(255,153,204,0.5);
     }
 
     /* Textarea */
@@ -621,7 +623,7 @@
     }
 
     .product-card.locked {
-      box-shadow: 0 0 0 1px var(--blue), 0 0 40px rgba(0,102,255,0.3), 0 0 80px rgba(0,102,255,0.15);
+      box-shadow: 0 0 0 1px var(--blue), 0 0 40px rgba(26,87,154,0.3), 0 0 80px rgba(26,87,154,0.15);
       animation: lockPulse 0.6s ease;
     }
 
@@ -771,7 +773,7 @@
 
     .step-card:hover {
       transform: translateY(-8px);
-      box-shadow: 0 20px 60px rgba(0,102,255,0.1), 0 0 0 1px rgba(0,102,255,0.2);
+      box-shadow: 0 20px 60px rgba(26,87,154,0.1), 0 0 0 1px rgba(26,87,154,0.2);
     }
 
     .step-icon {
@@ -842,7 +844,7 @@
 
     .feature-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 0 30px rgba(0,102,255,0.1), 0 0 0 1px rgba(0,102,255,0.15);
+      box-shadow: 0 0 30px rgba(26,87,154,0.1), 0 0 0 1px rgba(26,87,154,0.15);
     }
 
     .feature-icon {
@@ -860,94 +862,6 @@
       font-size: 0.85rem;
       color: var(--muted);
       line-height: 1.55;
-    }
-
-    /* ===== TESTIMONIALS ===== */
-    .testimonials-section {
-      position: relative;
-      z-index: 1;
-      padding: 6rem 2rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      align-items: start;
-    }
-
-    .testimonial-card {
-      padding: 2rem;
-      position: relative;
-      opacity: 0;
-      transform: translateY(30px);
-      transition: all 0.3s ease;
-    }
-
-    .testimonial-card.revealed {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .testimonial-card:nth-child(1) { transform: rotate(-1.5deg) translateY(0); }
-    .testimonial-card:nth-child(2) { transform: rotate(1deg) translateY(10px); }
-    .testimonial-card:nth-child(3) { transform: rotate(-0.5deg) translateY(5px); }
-
-    .testimonial-card.revealed:nth-child(1) { transform: rotate(-1.5deg) translateY(0); }
-    .testimonial-card.revealed:nth-child(2) { transform: rotate(1deg) translateY(10px); }
-    .testimonial-card.revealed:nth-child(3) { transform: rotate(-0.5deg) translateY(5px); }
-
-    .testimonial-card:hover {
-      transform: rotate(0deg) translateY(-8px);
-      box-shadow: 0 20px 60px rgba(0,102,255,0.1), 0 0 0 1px rgba(0,102,255,0.15);
-    }
-
-    .testimonial-quote {
-      font-size: 1.05rem;
-      font-style: italic;
-      color: var(--muted-strong);
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
-
-    .testimonial-quote::before {
-      content: '"';
-      font-size: 2rem;
-      color: var(--blue);
-      line-height: 0;
-      vertical-align: -0.4em;
-      margin-right: 0.1rem;
-    }
-
-    .testimonial-author {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .author-avatar {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.85rem;
-      color: var(--white);
-      flex-shrink: 0;
-    }
-
-    .author-info strong {
-      display: block;
-      font-size: 0.9rem;
-    }
-
-    .author-info span {
-      font-size: 0.75rem;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
     }
 
     /* ===== EMAIL CAPTURE ===== */
@@ -1129,7 +1043,7 @@
       <span>Launching Soon — Join the Waitlist</span>
     </div>
     <h1>Turn anything into a sellable page.</h1>
-    <p class="hero-sub">One link. Instant checkout. Launch in 60 seconds.</p>
+    <p class="hero-sub">One link. Instant checkout. No coding required.</p>
     <a href="#demo" class="hero-cta">
       Start Building
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -1238,20 +1152,20 @@
       <div class="glass-card step-card">
         <span class="step-icon">🔗</span>
         <div class="step-num">step 01</div>
-        <h3>Create your link</h3>
-        <p>Tell us what you're selling. Add a price. Drop an image. Done.</p>
+        <h3>Create your page</h3>
+        <p>Tell us what you're selling. Add a price, description, and image.</p>
+      </div>
+      <div class="glass-card step-card">
+        <span class="step-icon">💳</span>
+        <div class="step-num">step 02</div>
+        <h3>Connect payments</h3>
+        <p>Link your Stripe account. Payments go directly to your bank.</p>
       </div>
       <div class="glass-card step-card">
         <span class="step-icon">📣</span>
-        <div class="step-num">step 02</div>
-        <h3>Share anywhere</h3>
-        <p>Get a shareable link. Post it on Twitter, Instagram, or anywhere.</p>
-      </div>
-      <div class="glass-card step-card">
-        <span class="step-icon">💰</span>
         <div class="step-num">step 03</div>
-        <h3>Get paid</h3>
-        <p>Accept payments instantly. We handle the rest.</p>
+        <h3>Share & sell</h3>
+        <p>Get your link. Post it anywhere. Orders hit your dashboard instantly.</p>
       </div>
     </div>
   </section>
@@ -1300,56 +1214,11 @@
   <div class="section-sep"></div>
 
   <!-- TESTIMONIALS -->
-  <section class="testimonials-section" id="testimonials">
-    <h2 class="section-title">What early testers say</h2>
-    <p class="section-sub">Real stories from real people who got in early.</p>
-
-    <div class="testimonials-grid">
-      <div class="glass-card testimonial-card">
-        <p class="testimonial-quote">I sold my first ebook in 40 seconds. Unbelievable.</p>
-        <div class="testimonial-author">
-          <div class="author-avatar" style="background: linear-gradient(135deg, var(--blue), var(--pink));">SM</div>
-          <div class="author-info">
-            <strong>Sarah M.</strong>
-            <span>Dublin</span>
-          </div>
-        </div>
-      </div>
-      <div class="glass-card testimonial-card">
-        <p class="testimonial-quote">My handmade jewellery business went from Instagram DMs to real orders overnight.</p>
-        <div class="testimonial-author">
-          <div class="author-avatar" style="background: linear-gradient(135deg, #28c840, #0066ff);">AK</div>
-          <div class="author-info">
-            <strong>Aoife K.</strong>
-            <span>Galway</span>
-          </div>
-        </div>
-      </div>
-      <div class="glass-card testimonial-card">
-        <p class="testimonial-quote">This is what I needed. Finally.</p>
-        <div class="testimonial-author">
-          <div class="author-avatar" style="background: linear-gradient(135deg, var(--pink), #febc2e);">MT</div>
-          <div class="author-info">
-            <strong>Mark T.</strong>
-            <span>Cork</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="section-sep"></div>
-
   <!-- EMAIL CAPTURE -->
   <section class="email-section" id="email-section">
-    <h2 class="section-title">Be the first to build.</h2>
-    <p class="section-sub">Join the waitlist. Early access users get 0% fees for life.</p>
-
-    <form class="email-form" id="emailForm">
-      <input type="email" class="form-input" id="emailInput" placeholder="your@email.com" required>
-      <button type="submit" class="submit-btn">Join Waitlist</button>
-    </form>
-    <div class="email-success" id="emailSuccess">You're on the list. We'll be in touch. 🔥</div>
+    <h2 class="section-title">Coming soon.</h2>
+    <p class="section-sub">orderimo connects to your Stripe account — payments go directly to you. No middleman. No hold periods.</p>
+    <p class="section-sub" style="margin-top: 12px; opacity: 0.5; font-size: 0.85rem;">Beta access opening soon. Follow for updates.</p>
   </section>
 
   <!-- FOOTER -->
@@ -1628,18 +1497,8 @@
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // ===== EMAIL FORM =====
-    document.getElementById('emailForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const input = document.getElementById('emailInput');
-      const success = document.getElementById('emailSuccess');
-      input.value = '';
-      success.style.display = 'block';
-      setTimeout(() => success.style.display = 'none', 5000);
-    });
-
     // ===== SCROLL REVEAL =====
-    const revealEls = document.querySelectorAll('.step-card, .feature-card, .testimonial-card');
+    const revealEls = document.querySelectorAll('.step-card, .feature-card');
     const revealObs = new IntersectionObserver(entries => {
       entries.forEach((entry, i) => {
         if (entry.isIntersecting) {
